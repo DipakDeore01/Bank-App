@@ -1,12 +1,17 @@
 package com.dipak.entity;
 
-public class User {
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
+public class Users {
 
     private String name;
+    @Id
     private String email;
     private String phone;
     private String password;
-    private String addhaar;
+    private String aadhaar;
     private String pan;
     private String address;
 
@@ -42,12 +47,12 @@ public class User {
         this.password = password;
     }
 
-    public String getAddhaar() {
-        return addhaar;
+    public String getAadhaar() {
+        return aadhaar;
     }
 
-    public void setAddhaar(String addhaar) {
-        this.addhaar = addhaar;
+    public void setAadhaar(String aadhaar) {
+        this.aadhaar = aadhaar;
     }
 
     public String getPan() {

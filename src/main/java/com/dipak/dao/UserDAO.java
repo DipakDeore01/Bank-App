@@ -1,20 +1,23 @@
 package com.dipak.dao;
 
-import com.dipak.entity.User;
+import com.dipak.entity.Users;
 import com.dipak.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 public class UserDAO {
     HibernateUtil hibernateUtil = new HibernateUtil();
     SessionFactory factory = hibernateUtil.getFactory();
     Session session = factory.openSession();
+    Transaction tx = session.beginTransaction();
 
-    public void create(User user){
-        session.persist(user);
+    public void create(Users users){
+        session.persist(users);
+        tx.commit();
     }
-    public void delete(User user, String email){
-       User user1 = session.find(User.class, email);
-       session.remove(user1);
+    public void delete(String email){
+       Users users = session.find(Users.class, email);
+       session.remove(users);
     }
 }

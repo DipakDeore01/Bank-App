@@ -1,5 +1,6 @@
 package com.dipak.util;
 
+import com.dipak.entity.Users;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -9,7 +10,11 @@ public class HibernateUtil {
 
     static{
         try {
-            factory = new Configuration().configure().buildSessionFactory();
+            Configuration config = new Configuration();
+            config.addAnnotatedClass(Users.class);
+            config.configure();
+
+            factory = config.buildSessionFactory();
         } catch (HibernateException e) {
             throw new RuntimeException(e);
         }
