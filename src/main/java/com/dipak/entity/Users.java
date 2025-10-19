@@ -14,6 +14,7 @@ public class Users {
     private String aadhaar;
     private String pan;
     private String address;
+    private String acc_no;
 
     public String getName() {
         return name;
@@ -69,5 +70,13 @@ public class Users {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getAcc_no() {
+        return acc_no;
+    }
+
+    public void setAcc_no(String acc_no) {
+        this.acc_no = acc_no;
     }
 }
