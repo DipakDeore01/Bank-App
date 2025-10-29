@@ -235,7 +235,7 @@ public class UserService {
                         }
 
                         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-                            bw.write(existingAccount.getName() + "," + existingAccount.getEmail());
+                            bw.write(existingAccount.getName() + "," + existingAccount.getEmail()+","+ existingAccount.getAcc_no());
                         }
 
                         System.out.println("Login successful! Welcome, " + existingAccount.getName());

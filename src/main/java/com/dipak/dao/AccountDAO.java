@@ -7,13 +7,21 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 public class AccountDAO {
+
     HibernateUtil hibernateUtil = new HibernateUtil();
     SessionFactory factory = hibernateUtil.getFactory();
-    Session session = factory.openSession();
-    Transaction tx = session.beginTransaction();
 
-    public void create(Account account){
-        session.persist(account);
-        tx.commit();
+    public void create(Account account) {
+        try (Session session = factory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            session.persist(account);
+            tx.commit();
+        }
+    }
+
+    public Account view(String acc_no) {
+        try (Session session = factory.openSession()) {
+            return session.find(Account.class, acc_no);
+        }
     }
 }
