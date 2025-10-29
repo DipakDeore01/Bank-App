@@ -24,7 +24,7 @@ public class App {
                 byte choice = sc.nextByte();
                 switch (choice) {
                     case 1 -> userService.register();
-                    case 2 -> userService.login();
+                    case 2 -> userService.start();
                     case 0 -> {
                         System.out.print("Existing The software...");
                         return;

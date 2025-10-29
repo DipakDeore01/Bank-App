@@ -6,6 +6,7 @@ import com.dipak.entity.Account;
 import com.dipak.entity.Users;
 import org.hibernate.Session;
 
+import java.io.*;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -18,12 +19,43 @@ public class UserService {
     UserDAO userDAO = new UserDAO();
     AccountDAO accountDAO = new AccountDAO();
     Session session = getFactory().openSession();
+    AccountService accountService;
+    private static File file = new File("src/main/java/com/dipak/login.txt");
 
-    public UserService(){
+    public UserService() {
+        this.sc = new Scanner(System.in);
+        this.accountService = new AccountService(this.sc);
     }
 
-    public UserService(Scanner sc){
-        this.sc=sc;
+    public UserService(Scanner sc) {
+        this.sc = sc;
+        this.accountService = new AccountService(this.sc);
+    }
+
+    public void start() {
+        if (file.exists()) {
+            String email;
+            String name;
+
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String line = br.readLine();
+                String[] data = line.split(",");
+                name = data[0];
+                email = data[1];
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            Users existingAccount = session.createQuery(
+                            "from Users where email = :email", Users.class)
+                    .setParameter("email", email)
+                    .uniqueResult();
+
+            System.out.println("Login successful! Welcome, " + existingAccount.getName());
+            accountService.menu();
+        } else {
+            login();
+        }
     }
 
     public void register(){
@@ -33,7 +65,6 @@ public class UserService {
         String name = sc.nextLine();
         users.setName(name);
         account.setName(name);
-
         System.out.print("Email: ");
         String email = sc.next();
         users.setEmail(email);
@@ -52,10 +83,11 @@ public class UserService {
         try{
             userDAO.create(users);
             accountDAO.create(account);
-
             System.out.println("Registration Successful...");
             System.out.println("Your account number is: "+account.getAcc_no());
+            System.out.println("You can login now using email and password...");
             System.out.println();
+            login();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -67,6 +99,7 @@ public class UserService {
             String phone = sc.next();
             if (phone.matches("\\d{10}")){
                 users.setPhone(phone);
+                account.setPhone(phone);
                 return;
             }else{
                 System.out.println("Enter valid phone number...");
@@ -177,7 +210,7 @@ public class UserService {
         account.setAcc_no(accNumber);
     }
 
-    public void login() {
+    private void login() {
         while (true) {
             System.out.print("Email: ");
             String email = sc.next();
@@ -193,13 +226,28 @@ public class UserService {
             } else {
                 System.out.print("Password: ");
                 String password = sc.next();
+                System.out.println();
 
                 if (existingAccount.getPassword().equals(password)) {
-                    System.out.println("Login successful! Welcome, " + existingAccount.getName());
-                    break;
+                    try {
+                        if (!file.exists()) {
+                            file.createNewFile();
+                        }
+
+                        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+                            bw.write(existingAccount.getName() + "," + existingAccount.getEmail());
+                        }
+
+                        System.out.println("Login successful! Welcome, " + existingAccount.getName());
+                        accountService.menu();
+                        break;
+
+                    } catch (IOException e) {
+                        System.err.println("Error writing to file: " + e.getMessage());
+                    }
                 } else {
                     System.out.println("Incorrect password. Try again.");
-                    System.out.println("Do you want to try again? (yes/no)");
+                    System.out.print("Do you want to try again? (yes/no): ");
                     String choice = sc.next();
 
                     if (choice.equalsIgnoreCase("no")) {

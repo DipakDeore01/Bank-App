@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 @Entity
 public class Account {
     private String name;
+    private String phone;
     @Id
     private String acc_no;
     private String  pin;
@@ -17,6 +18,14 @@ public class Account {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getAcc_no() {
