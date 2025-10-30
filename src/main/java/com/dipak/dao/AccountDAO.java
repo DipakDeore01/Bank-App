@@ -24,4 +24,45 @@ public class AccountDAO {
             return session.find(Account.class, acc_no);
         }
     }
+
+    public void transfer(String senderPhone, String receiverPhone, double amount) {
+        Transaction tx = null;
+        try (Session session = factory.openSession()) {
+            tx = session.beginTransaction();
+
+            Account sender = session.createQuery(
+                            "from Account where phone = :phone", Account.class)
+                    .setParameter("phone", senderPhone)
+                    .uniqueResult();
+
+            Account receiver = session.createQuery(
+                            "from Account where phone = :phone", Account.class)
+                    .setParameter("phone", receiverPhone)
+                    .uniqueResult();
+
+            if (sender == null || receiver == null) {
+                System.out.println("Account not found.");
+                return;
+            }
+
+            if (sender.getBalance() < amount) {
+                System.out.println("Insufficient balance.");
+                return;
+            }
+
+            sender.setBalance(sender.getBalance() - amount);
+            receiver.setBalance(receiver.getBalance() + amount);
+
+            session.merge(sender);
+            session.merge(receiver);
+
+            tx.commit();
+            System.out.println("₹" + amount + " transferred successfully from "
+                    + sender.getName() + " to " + receiver.getName());
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        }
+    }
+
 }
