@@ -1,2 +1,2 @@
 # Bank-App
-A Java-based Banking Application Backend built using Hibernate ORM for efficient database management. This project demonstrates core banking operations such as account creation, deposits, withdrawals, fund transfers, and balance inquiry — all implemented with a modular, secure, and scalable architecture.
+BankPay is a backend-based digital payment platform similar to PhonePe, built to handle secure and seamless money transfer between bank accounts. The project follows layered architecture and integrates Hibernate ORM with MySQL for database operations, ensuring efficient and optimized data handling.
