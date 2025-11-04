@@ -8,8 +8,13 @@ import org.hibernate.Transaction;
 
 public class AccountDAO {
 
-    HibernateUtil hibernateUtil = new HibernateUtil();
-    SessionFactory factory = hibernateUtil.getFactory();
+    private final SessionFactory factory = HibernateUtil.getFactory();
+
+    public Account view(String acc_no) {
+        try (Session session = factory.openSession()) {
+            return session.get(Account.class, acc_no);
+        }
+    }
 
     public void create(Account account) {
         try (Session session = factory.openSession()) {
@@ -19,34 +24,28 @@ public class AccountDAO {
         }
     }
 
-    public Account view(String acc_no) {
-        try (Session session = factory.openSession()) {
-            return session.find(Account.class, acc_no);
-        }
-    }
-
     public void transfer(String senderPhone, String receiverPhone, double amount) {
         Transaction tx = null;
         try (Session session = factory.openSession()) {
             tx = session.beginTransaction();
 
-            Account sender = session.createQuery(
-                            "from Account where phone = :phone", Account.class)
+            Account sender = session.createQuery("from Account where phone = :phone", Account.class)
                     .setParameter("phone", senderPhone)
                     .uniqueResult();
 
-            Account receiver = session.createQuery(
-                            "from Account where phone = :phone", Account.class)
+            Account receiver = session.createQuery("from Account where phone = :phone", Account.class)
                     .setParameter("phone", receiverPhone)
                     .uniqueResult();
 
             if (sender == null || receiver == null) {
                 System.out.println("Account not found.");
+                if (tx != null) tx.rollback();
                 return;
             }
 
             if (sender.getBalance() < amount) {
                 System.out.println("Insufficient balance.");
+                if (tx != null) tx.rollback();
                 return;
             }
 
@@ -55,14 +54,45 @@ public class AccountDAO {
 
             session.merge(sender);
             session.merge(receiver);
-
             tx.commit();
-            System.out.println("₹" + amount + " transferred successfully from "
-                    + sender.getName() + " to " + receiver.getName());
+            System.out.println("₹" + amount + " transferred successfully to "+receiver.getName());
         } catch (Exception e) {
             if (tx != null) tx.rollback();
             e.printStackTrace();
         }
     }
 
+    public void accountTransfer(String senderAccNo, String receiverAccNo, double amount) {
+        Transaction tx = null;
+        try (Session session = factory.openSession()) {
+            tx = session.beginTransaction();
+
+            Account sender = session.get(Account.class, senderAccNo);
+            Account receiver = session.get(Account.class, receiverAccNo);
+
+            if (sender == null || receiver == null) {
+                System.out.println("Account not found.");
+                if (tx != null) tx.rollback();
+                return;
+            }
+
+            if (sender.getBalance() < amount) {
+                System.out.println("Insufficient balance.");
+                if (tx != null) tx.rollback();
+                return;
+            }
+
+            sender.setBalance(sender.getBalance() - amount);
+            receiver.setBalance(receiver.getBalance() + amount);
+
+            session.merge(sender);
+            session.merge(receiver);
+            tx.commit();
+
+            System.out.println("₹" + amount + " transferred successfully to "+receiver.getName());
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        }
+    }
 }
