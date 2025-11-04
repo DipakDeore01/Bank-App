@@ -16,8 +16,12 @@ public class AccountService {
     private String acc_no;
     private static File file = new File("src/main/java/com/dipak/login.txt");
 
-    public AccountService() {}
-    public AccountService(Scanner sc) { this.sc = sc; }
+    public AccountService() {
+    }
+
+    public AccountService(Scanner sc) {
+        this.sc = sc;
+    }
 
     public void menu() {
         while (true) {
@@ -58,6 +62,7 @@ public class AccountService {
     private void viewBalance() {
         getAcc_no();
         if (acc_no != null) {
+            pin();
             Account account = accountDAO.view(acc_no);
             if (account != null) {
                 System.out.println("Account Balance: ₹" + account.getBalance() + "\n");
@@ -109,6 +114,8 @@ public class AccountService {
 
             System.out.print("Amount to Transfer: ");
             double amount = sc.nextDouble();
+            
+            pin();
 
             accountDAO.transfer(sender.getPhone(), receiver.getPhone(), amount);
         }
@@ -133,7 +140,28 @@ public class AccountService {
             System.out.print("Amount to Transfer: ");
             double amount = sc.nextDouble();
 
+            pin();
+
             accountDAO.accountTransfer(acc_no, receiverAccNo, amount);
+        }
+    }
+
+    private void pin() {
+        while (true) {
+            System.out.print("Pin: ");
+            String pin = sc.next();
+            if (pin.matches("\\d{4}")&& pin.length()==4) {
+                getAcc_no();
+                Account account = accountDAO.view(acc_no);
+                if (account.getPin().equals(pin)){
+                    return;
+                }
+                else {
+                    System.out.println("Incorrect Pin...");
+                }
+            }else {
+                System.out.println("Enter valid Pin...");
+            }
         }
     }
 }
